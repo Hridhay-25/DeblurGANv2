@@ -1,7 +1,6 @@
 import os
 from glob import glob
 from typing import Optional
-
 import cv2
 import numpy as np
 import torch
@@ -90,7 +89,7 @@ def process_video(pairs, predictor, output_dir):
 
 def main(img_pattern: str,
          mask_pattern: Optional[str] = None,
-         weights_path='fpn_inception.h5',
+         weights_path='best_fpn.h5',
          out_dir='submit/',
          side_by_side: bool = False,
          video: bool = False):
@@ -102,21 +101,22 @@ def main(img_pattern: str,
     pairs = zip(imgs, masks)
     names = sorted([os.path.basename(x) for x in glob(img_pattern)])
     predictor = Predictor(weights_path=weights_path)
-
     os.makedirs(out_dir, exist_ok=True)
     if not video:
         for name, pair in tqdm(zip(names, pairs), total=len(names)):
             f_img, f_mask = pair
             img, mask = map(cv2.imread, (f_img, f_mask))
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-
+            print(img)
             pred = predictor(img, mask)
             if side_by_side:
                 pred = np.hstack((img, pred))
             pred = cv2.cvtColor(pred, cv2.COLOR_RGB2BGR)
+            print(img)
             cv2.imwrite(os.path.join(out_dir, name),
                         pred)
     else:
+        print("hello")
         process_video(pairs, predictor, out_dir)
 
 # def getfiles():
@@ -136,7 +136,8 @@ def get_files():
 if __name__ == '__main__':
   #  Fire(main)
 #增加批量处理图片：
-    img_path=get_files()
-    for i in img_path:
-        main(i)
+    # img_path=get_files()
+    # for i in img_path:
+    #     print(i)
+    main( "test_img/000027.png")
     # main('test_img/tt.mp4')
